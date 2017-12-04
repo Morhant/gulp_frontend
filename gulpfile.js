@@ -48,26 +48,36 @@ var path = {
   },
   src: {
     jade: {
-      folder: srcRootPath + '/',
-      files: srcRootPath + '/*.jade'
+      dir: srcRootPath + '/',
+      files: srcRootPath + '/*.jade',
+      template: srcRootPath + '/_template/'
     }, 
     sass: {
-      folder: srcRootPath + '/style/',
+      dir: srcRootPath + '/style/',
       files: srcRootPath + '/style/*.+(scss|sass)',
       template: srcRootPath + '/style/_template/'
     },
     css: srcRootPath + '/style/*.css',
     sprite: {
-      folder: srcRootPath + '/sprite/',
+      dir: srcRootPath + '/sprite/',
       files: srcRootPath + '/sprite/*.png'
     },
-    fonts: srcRootPath + '/fonts/*.*',
-    js: srcRootPath + '/js/*.js',
+    fonts: {
+      files: srcRootPath + '/fonts/*.*',
+      dir: srcRootPath + '/fonts/'
+    },
+    js: {
+      files: srcRootPath + '/js/*.js',
+      dir: srcRootPath + '/js/'
+    }, 
     img: {
-      folder: srcRootPath + '/img/',
+      dir: srcRootPath + '/img/',
       files: srcRootPath + '/img/*.*'
     },
-    svg_sprite: srcRootPath + '/svg_sprite/*.svg',
+    svg_sprite: {
+      files: srcRootPath + '/svg_sprite/*.svg',
+      dir: srcRootPath + '/svg_sprite/'
+    }
 
   },
   watch: {
@@ -158,7 +168,7 @@ gulp.task('sprite', function () {
     imgPath: '../img/sprite.png'
 
   }))
-  spriteData.img.pipe(gulp.dest(path.src.img.folder))
+  spriteData.img.pipe(gulp.dest(path.src.img.dir))
   spriteData.css.pipe(gulp.dest(path.src.sass.template))
     
   .pipe(reload({stream:true}));
@@ -183,14 +193,14 @@ gulp.task('img', function () {
 });
 //Красивый js
 gulp.task('prettify', function() {
-  gulp.src(path.src.js)
+  gulp.src(path.src.js.files)
     .pipe(prettify({collapseWhitespace: true}))
     .pipe(gulp.dest(path.pre_build.js)) // edit in place
     .pipe(reload({stream: true})); 
 });
 //шрифты
 gulp.task('fonts', function() {
-    gulp.src(path.src.fonts)
+    gulp.src(path.src.fonts.files)
         .pipe(gulp.dest(path.pre_build.fonts))
         .pipe(reload({stream:true}));
 });
@@ -225,10 +235,10 @@ gulp.task('svg_template_jade', function(cb){
     use(xlink:href='img/svg-icons.svg#' + name)";
   fs.writeFile(srcRootPath + '/_template/svg_sprite_mixin.jade', jade_sprite_mixin, cb);
 });
-gulp
+
 ////svg sprite
 gulp.task('svg_sprite', function () {
-  return gulp.src(path.src.svg_sprite)
+  return gulp.src(path.src.svg_sprite.files)
   // minify svg
     .pipe(svgmin({
       js2svg: {
@@ -268,6 +278,29 @@ gulp.task('svg_sprite', function () {
 
 gulp.task('clean', function (cb) {
     rimraf(pre_buildRootPath+'/', cb);
+});
+//создание структуры папок src
+gulp.task('src', function () {
+  var html = gulp.src(srcRootPath)
+      .pipe(gulp.dest(srcRootPath));
+  var html_template = gulp.src(path.src.jade.template)
+      .pipe(gulp.dest(path.src.jade.template));
+  var style = gulp.src(path.src.sass.dir)
+      .pipe(gulp.dest(path.src.sass.dir));
+  var style_template = gulp.src(path.src.sass.template)
+      .pipe(gulp.dest(path.src.sass.template));   
+  var js = gulp.src(path.src.js.dir)
+      .pipe(gulp.dest(path.src.js.dir));
+  var fonts = gulp.src(path.src.fonts.dir)
+      .pipe(gulp.dest((path.src.fonts.dir));
+  var img = gulp.src(path.src.img.dir)
+      .pipe(gulp.dest((path.src.img.dir));
+  var sprite = gulp.src(path.src.sprite.dir)
+      .pipe(gulp.dest((path.src.sprite.dir));
+  var svg_sprite = gulp.src(path.src.svg_sprite.dir)
+      .pipe(gulp.dest((path.src.svg_sprite.dir));
+
+  return html, html_template, style, style_template, js, fonts, img, sprite, svg_sprite;
 });
 //Компиляция в реальном времени
 
