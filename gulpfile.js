@@ -25,9 +25,7 @@ var svgSprite = require('gulp-svg-sprite'),
 var filter    = require('gulp-filter');
 var svg2png   = require('gulp-svg2png');
 
-
 //Пути к файлам и папкам проекта
-
 var srcRootPath = 'src';
 var buildRootPath = 'build';
 var pre_buildRootPath = 'pre_build';
