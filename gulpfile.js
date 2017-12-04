@@ -25,6 +25,7 @@ var svgSprite = require('gulp-svg-sprite'),
 var filter    = require('gulp-filter');
 var svg2png   = require('gulp-svg2png');
 
+
 //Пути к файлам и папкам проекта
 
 var srcRootPath = 'src';
@@ -279,29 +280,7 @@ gulp.task('svg_sprite', function () {
 gulp.task('clean', function (cb) {
     rimraf(pre_buildRootPath+'/', cb);
 });
-//создание структуры папок src
-gulp.task('src', function () {
-  var html = gulp.src(srcRootPath)
-      .pipe(gulp.dest(srcRootPath));
-  var html_template = gulp.src(path.src.jade.template)
-      .pipe(gulp.dest(path.src.jade.template));
-  var style = gulp.src(path.src.sass.dir)
-      .pipe(gulp.dest(path.src.sass.dir));
-  var style_template = gulp.src(path.src.sass.template)
-      .pipe(gulp.dest(path.src.sass.template));   
-  var js = gulp.src(path.src.js.dir)
-      .pipe(gulp.dest(path.src.js.dir));
-  var fonts = gulp.src(path.src.fonts.dir)
-      .pipe(gulp.dest((path.src.fonts.dir));
-  var img = gulp.src(path.src.img.dir)
-      .pipe(gulp.dest((path.src.img.dir));
-  var sprite = gulp.src(path.src.sprite.dir)
-      .pipe(gulp.dest((path.src.sprite.dir));
-  var svg_sprite = gulp.src(path.src.svg_sprite.dir)
-      .pipe(gulp.dest((path.src.svg_sprite.dir));
 
-  return html, html_template, style, style_template, js, fonts, img, sprite, svg_sprite;
-});
 //Компиляция в реальном времени
 
 gulp.task('watch', function () {
