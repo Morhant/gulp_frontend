@@ -7,6 +7,7 @@
     "test": "test"
   },
   "dependencies": {
+    "css-mqpacker": "^6.0.1",
     "gulp-cheerio": "^0.6.2",
     "gulp-filter": "^5.0.1",
     "gulp-imagemin": "^4.0.0",
@@ -25,8 +26,6 @@
     "autoprefixer": "^7.1.6",
     "browser-sync": "^2.18.13",
     "gulp": "^3.9.1",
-    "gulp-autoprefixer": "^3.1.1",
-    "gulp-group-css-media-queries": "^1.2.0",
     "gulp-jade": "^1.1.0",
     "gulp-postcss": "^7.0.0",
     "gulp-sass": "^3.1.0",

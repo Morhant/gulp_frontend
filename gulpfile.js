@@ -1,10 +1,10 @@
 
-//Модули 
+//Modules
 var gulp = require('gulp');
 var jade = require('gulp-jade');
 var sass = require('gulp-sass');
 var autoprefixer = require('autoprefixer');
-var gcmq = require('gulp-group-css-media-queries');
+var mqpacker = require('css-mqpacker');
 var spritesmith = require('gulp.spritesmith');
 var fs = require('fs');
 var browserSync = require('browser-sync');
@@ -25,7 +25,7 @@ var svgSprite = require('gulp-svg-sprite'),
 var filter    = require('gulp-filter');
 var svg2png   = require('gulp-svg2png');
 
-//Пути к файлам и папкам проекта
+//Path to folders and files of project
 var srcRootPath = 'src';
 var buildRootPath = 'build';
 var pre_buildRootPath = 'pre_build';
@@ -91,7 +91,7 @@ var path = {
   }
 
 };
-//конфиг сервера
+//Configuration of BroserSync server
 var server_config = {
     server: {
         baseDir: pre_buildRootPath
@@ -100,39 +100,35 @@ var server_config = {
     logPrefix: "morhant_project",
     notify: false
 };
-// Задачи гальпа
-//запуск сервера с авто релоадом
+// Gulp Tasks
+//Server with autoreloading
 gulp.task('browser-sync', function () {
   browserSync.init(server_config);
 });
-
-// постпроцессоры css
+// Configuration of PostCss task
 var processors = [ 
   autoprefixer({browsers: ['last 5 versions', 'safari 5', 'ie 7','ie 8', 'ie 9', 'opera 12.1']}),
   color_rgba_fallback,
   opacity,
   vmin,
   pixrem,
-  gcmq
+  mqpacker({ sort: true })
   ];
-
+// PostCss task
 gulp.task('css', function () {  
   return gulp.src(path.pre_build.style + '*.css')
     .pipe(postcss(processors))
     .pipe(gulp.dest(path.pre_build.style))
     .pipe(reload({stream:true}));  
 }); 
-
-// препроцессор css
+// Preprocessor sass
 gulp.task('sass', function () {
     return gulp.src(path.src.sass.files)
     .pipe(sass({indentedSyntax: true}).on('error', sass.logError))
-    .pipe(gulp.dest(path.pre_build.style))
-    
+    .pipe(gulp.dest(path.pre_build.style))    
     //reload({stream:true});   
 });
-
-////////////////////////////////
+// Log error for Jade
 function log(error) {
     console.log([
         '',
@@ -144,18 +140,15 @@ function log(error) {
     ].join('\n'));
     this.end();
 }
-//////////////////////////////
-
-// препроцессоры  html
+//////////////////////
+// Jade to HTML
 gulp.task('jade', function() {
    return gulp.src(path.src.jade.files)
         .pipe(jade({pretty: true}).on("error", log)) 
         .pipe(gulp.dest(path.pre_build.html))
         .pipe(reload({stream:true}));
 });
-
-//Спрайты
-
+//PNG sprites
 gulp.task('sprite', function () {
   var spriteData = gulp.src(path.src.sprite.files)
   .pipe(spritesmith({
@@ -165,15 +158,12 @@ gulp.task('sprite', function () {
     cssName: 'sprite.sass',
     padding: 2,
     imgPath: '../img/sprite.png'
-
   }))
   spriteData.img.pipe(gulp.dest(path.src.img.dir))
-  spriteData.css.pipe(gulp.dest(path.src.sass.template))
-    
-  .pipe(reload({stream:true}));
- 
+  spriteData.css.pipe(gulp.dest(path.src.sass.template))    
+  .pipe(reload({stream:true})); 
 });
-//Картинки
+//Task for Images
 gulp.task('img', function () {
     gulp.src(path.src.img.files) //Выберем наши картинки
         .pipe(imagemin([ 
@@ -190,27 +180,27 @@ gulp.task('img', function () {
         .pipe(gulp.dest(path.pre_build.img)) //И бросим в build
         .pipe(reload({stream: true}));
 });
-//Красивый js
+//Beauty JavaScript
 gulp.task('prettify', function() {
   gulp.src(path.src.js.files)
     .pipe(prettify({collapseWhitespace: true}))
     .pipe(gulp.dest(path.pre_build.js)) // edit in place
     .pipe(reload({stream: true})); 
 });
-//шрифты
+//Fonts
 gulp.task('fonts', function() {
     gulp.src(path.src.fonts.files)
         .pipe(gulp.dest(path.pre_build.fonts))
         .pipe(reload({stream:true}));
 });
 
-//копируем css из src
+//Copy non sass | scss style files from crc
 gulp.task('copy_css', function() {
     gulp.src(path.src.css)
         .pipe(gulp.dest(path.pre_build.style))
         .pipe(reload({stream:true}));
 });
-/// шаблон svg sprite
+// Create SCSS template for SVG sprite
 gulp.task('svg_template_scss', function(cb){
   var svg_template = '.svg-icon \r\n\
   display: inline-block\r\n\
@@ -225,7 +215,7 @@ gulp.task('svg_template_scss', function(cb){
 \r\n\
 {{/shapes}}';
   fs.writeFile(path.src.sass.template + 'svg_sprite_template.scss', svg_template, cb);
-////  
+// Create mixin Jade file for SVG sprite 
 });
 gulp.task('svg_template_jade', function(cb){
   var jade_sprite_mixin = "mixin svg-icon(name,mod)\r\n\
@@ -234,8 +224,7 @@ gulp.task('svg_template_jade', function(cb){
     use(xlink:href='img/svg-icons.svg#' + name)";
   fs.writeFile(srcRootPath + '/_template/svg_sprite_mixin.jade', jade_sprite_mixin, cb);
 });
-
-////svg sprite
+// SVG sprite. It makes mono colour svg icons
 gulp.task('svg_sprite', function () {
   return gulp.src(path.src.svg_sprite.files)
   // minify svg
@@ -272,15 +261,11 @@ gulp.task('svg_sprite', function () {
     .pipe(gulp.dest(pre_buildRootPath))
     .pipe(reload({stream:true}));
 });
-
-//Очистка
-
-gulp.task('clean', function (cb) {
+// Clean pre_build folder
+gulp.task('clean:pre_build', function (cb) {
     rimraf(pre_buildRootPath+'/', cb);
 });
-
-//Компиляция в реальном времени
-
+//Auto assambling project to pre_build in real time
 gulp.task('watch', function () {
   gulp.start('browser-sync');
   gulp.watch(path.watch.jade, ['jade']);
@@ -293,7 +278,7 @@ gulp.task('watch', function () {
   gulp.watch(path.watch.css, ['copy_css']);
   gulp.watch(path.watch.svg_sprite, ['svg_sprite']);
 });
-
+// Function to start tasks one by one
 function runSequential( tasks ) {
     if( !tasks || tasks.length <= 0 ) return;
 
@@ -303,6 +288,6 @@ function runSequential( tasks ) {
         runSequential( tasks.slice(1) );
     } );
   }
-//предварительный билд
- gulp.task( "pre_build", () => runSequential([ 'svg_template_scss', 'svg_template_jade', 'svg_sprite', "sprite", "jade", "sass", "img", "prettify", "fonts", "copy_css", "css" ]));
+// run pre_build
+gulp.task( "pre_build", () => runSequential(['clean:pre_build', 'svg_template_scss', 'svg_template_jade', 'svg_sprite', "sprite", "jade", "sass", "img", "prettify", "fonts", "copy_css", "css" ]));
 
